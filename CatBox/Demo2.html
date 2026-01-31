@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo 2</title>
+    <style>
+       body { font-family: sans-serif; max-width: 700px; margin: 20px auto; }
+       h1 { text-align: center; }
+       #status { margin-bottom: 10px; font-weight: bold; }
+       button { margin: 5px 0; padding: 10px; width: 100%; font-size: 16px; }
+       .hidden { display: none; } 
+
+       .chat-box {
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 300px;
+        overflow-y: auto;
+        background: #fff;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+       }
+
+       .bubble {
+        max-width: 80%;
+        padding: 10px;
+        margin: 5px;
+        border-radius: 10px;
+        position: relative;
+        font-size: 14px;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+       }
+
+       .bubble.left {
+        align-self: flex-start;
+        background: #e0f7fa;
+       }
+
+       .bubble.right {
+        align-self: flex-end;
+        background: #ffe0b2;
+       }
+
+       .speaker {
+       font-weight: bold;
+       margin-bottom: 5px;
+       font-size: 13px;
+       }
+
+
+    </style>
+</head>
+
+<body>
+
+    <h1>witty kitty ? - Demo2.0</h1>
+    <div id="status">click for start</div>
+
+    <!--In this version, use chatContainer to replaced the #log -->
+    <div id="chatContainer" class="chat-box"></div>
+
+    <!-- The area of type in chatroom-->
+    <div id="inputContainer" class="hidden">
+      <label>
+        Cat No.<span id = "catLabel"></span> Please speak: 
+        <span id="keywordHint" style="color: gray; font-style: italic;"></span>
+      </label>
+      <input type="text" id="chatInput" placeholder="Speak somethine..." style="width: 100％; padding: 8px; margin: 8px 0;" />
+      <button id="sendBtn">Send</button>
+    </div>
+
+    <!-- Use the hidden attribute to temporarily hide the voting button,
+      because cats don't vote in the first round, but vote in the second round.-->
+    <button id="startBtn">start game</button>
+    <button id="speakBtn" class="hidden">The kittens can start speaking...</button> 
+    <button id="voteBtn" class="hidden">Voting begins</button>
+    <button id="nextVoteBtn" class="hidden">The next kitten starts voting</button>
+    <button id="restartBtn" class="hidden">Let's start over...</button>
+
+    <script>
+
+        const playersCount = 4; //Set four cat right now, it may can be change...
+        let keywords = [];
+        let alive = new Array(playersCount).fill(true); //alive is an array that represents the survival status of each cat. True means the cat is alive, and False means the cat is dead.
+        let roundNumber = 1;
+        let roundStartIndex = 0; 
+        let isForward = true; //The speaking order starts from True (after all, the cat has to be alive to speak; a dead cat cannot speak)
+        let speakOrder = [];
+        let currentSpeakerIndex = 0;
+        let votes = new Array(playersCount).fill(null); //Record the voting results of each cat. Since there is no vote at the beginning of the game, fill it with NULL.
+        let voteIndex = 0; //Control the voting process
+
+        let tieCount = 0; //For record the number of tie
+
+        //const logDiv = document.getElementById('log'); Not be needed in this version 
+        const statusDiv = document.getElementById('status'); //Show the status of game
+        const startBtn = document.getElementById('startBtn'); // Start game
+        const speakBtn = document.getElementById('speakBtn'); // Cats speak
+        const voteBtn = document.getElementById('voteBtn'); // vote
+        const nextVoteBtn = document.getElementById('nextVoteBtn'); //next vote
+        const restartBtn = document.getElementById('restartBtn'); //Restart the game
+       
+        //Make a small adjustment in this version. When system messages need to be printed, 
+        //just log("message content") instead of writing the full addChatBubble('System', ...) every time.
+        function log(msg) {
+            addChatBubble('System', msg);  
+        }
+        
+        //The keywords for each player, bedIndex means the spy cat, pick up one of players random
+        function assignKeywords() {
+            keywords = new Array(playersCount).fill('Chicken'); 
+            const badIndex = Math.floor(Math.random() * playersCount); //Generate a random integer from 0 to playersCount-1 to achieve the effect of randomly selecting a spy cat player
+            keywords[badIndex] = 'Duck';
+        }
+
+        //At the end of each round of the game, the cat may die. This part of the code is designed to reset the game.
+        function resetGame() {
+            roundNumber = 1;
+            isForward = true; 
+            //Again, alive is an array that represents the survival status of each cat. True means the cat is alive, and False means the cat is dead.
+            alive.fill(true);  //It looks like, alive = [true, true, true, true]; Cause no cat dead at beginning
+            assignKeywords();
+            roundStartIndex = 0;
+            speakOrder = getSpeakOrder(roundStartIndex);
+            //logDiv.innerHTML = ''; Not be needed in this version
+
+            log(`The game begins! Four cats, one of them is a spy cat.`);
+
+            //speakOrder is an array that represents the order in which cats speak in a round (e.g., [0, 1, 2, 3]).
+            //.map(i => i + 1) Description: For each element i in the array, add 1.
+            //→ This converts the index (starting at 0) to the number (starting at 1) seen by the player.
+            log(`The speaking order of round ${roundNumber}：${speakOrder.map(i => i + 1).join(' → ')}`);
+
+            // Prompt players to speak in order
+            statusDiv.textContent = `Round ${roundNumber}start，from cat No.${speakOrder[0] + 1}`;
+            speakBtn.classList.remove('hidden');
+            voteBtn.classList.add('hidden');
+            nextVoteBtn.classList.add('hidden');
+            startBtn.classList.add('hidden');
+            restartBtn.classList.add('hidden');
+        }
+
+        function getAlivePlayers() {
+            return alive.map((v, i) => v ? i : null)  //v is the value of the current element
+                        .filter(i => i !== null); // Filter dead cats
+        }
+
+        //The purpose of this part is to avoid the situation where the cat is dead but can still speak 
+        // by skipping the dead cat and returning the index of the next cat that can speak.
+        function getNextAlivePlayer(fromIndex) {
+            const total = alive.length; //The number of cats
+            for (let i = 1; i <= total; i++)
+             {
+                 const next = (fromIndex + i) % total;  //Note: There's no need to explicitly declare next here because const is used in the loop, 
+                 // and a new next constant is generated for each iteration of i. 
+                 // I tried removing const, and while the code works fine in non-strict mode, 
+                 // there's a potential problem because next in the loop is no longer a local variable, 
+                 // but a global one, which will result in an error in strict mode.
+                 if (alive[next]) return next;
+              }
+               return 0;
+           }
+
+        
+        // The purpose of this section is to generate a speaking order group according to the specific situation when a cat dies.
+        function getSpeakOrder(startIndex) {
+            const alivePlayers = getAlivePlayers(); 
+            const startPosition = alivePlayers.indexOf(startIndex);
+            const order = [];
+
+            const len = alivePlayers.length;
+            
+            for (let i = 0; i < len; i++) {
+               //condition ? expressionIfTrue : expressionIfFalse 
+                const index = isForward ? alivePlayers[(startPosition + i) % len] : alivePlayers[(startPosition - i + len) % len];
+                order.push(index);
+             }
+            return order;
+        }
+
+        //This section aims to achieve four goals: 
+        // 1. Determine whether the current round is over; 
+        // 2. Switch to the voting phase or the next round; 
+        // 3. Update the speaking order; 
+        // 4. Let the next cat start speaking
+        function nextSpeaker() {
+            if (speakOrder.length === 0) 
+            {
+               speakBtn.classList.add('hidden');//All cats have finished speaking in this round, 
+               // and the "Speak" button is hidden at this time because no cat needs to speak now
+
+              if (roundNumber >= 2) //Second round and above (there is no voting in the first round)
+               {
+                voteBtn.classList.remove('hidden'); //The cat needs to vote, unhide the voting button
+                statusDiv.textContent = `The Round${roundNumber}is over, start voting`;
+               } else {
+                roundNumber++;
+                isForward = !isForward; //Please note that voting starts with alive cats, dead cats cannot be voted
+                roundStartIndex = alive[currentSpeakerIndex] ? currentSpeakerIndex : getNextAlivePlayer(currentSpeakerIndex);
+                speakOrder = getSpeakOrder(roundStartIndex);
+                log(`The Round 1 is over, no vote right now.`);
+                log(`The speaking order of Round ${roundNumber}：${speakOrder.map(i => i + 1).join(' → ')}`);
+                statusDiv.textContent = `The Round ${roundNumber}start, from${speakOrder[0] + 1}`;
+                speakBtn.classList.remove('hidden');
+               }
+                return;
+            }
+
+          currentSpeakerIndex = speakOrder.shift();
+          const word = keywords[currentSpeakerIndex];
+
+          promptCatToSpeak(currentSpeakerIndex);
+          return; //Wait player type, then go on...
+
+            statusDiv.textContent = `Next cat speaking...`;
+         }
+
+           function startVoting() {
+                   voteIndex = 0;  //Voting starts with the first surviving cat
+                   votes.fill(null);  //Clear the voting records of the previous round
+                   voteBtn.classList.add('hidden'); 
+                   nextVoteBtn.classList.remove('hidden');
+                   const voter = getAlivePlayers()[voteIndex];
+                   statusDiv.textContent = `Cat No.${voter + 1} is voting...`;
+          }
+
+     //This part aims to achieve five goals: 
+     // 1. Get the cat whose turn it is to vote;
+     // 2. Pop up a dialog box for it to choose the person to vote for; 
+     // 3. Check whether the input is legal; 
+     // 4. Update the voting array; 
+     // 5. Move to the next cat to vote, or count the results.
+         function playerVote() {
+            const alivePlayers = getAlivePlayers();
+            const voter = alivePlayers[voteIndex];
+            const vote = prompt(`Cat No.${voter + 1}，You vote to put which cat into the cage of truth（1-${playersCount}）：`);
+            const num = Number(vote);
+            if (
+              !num || //Player input is not a number or is empty
+              num < 1 || num > playersCount //Voting should not exceed the cat number range. For example, if there are four cats, it does not make sense to vote for number five.
+              || !alive[num - 1]  //Dead cats cannot be voted on
+              || (num - 1) === voter //Cats cannot vote for themselves
+             ) 
+          { 
+            alert('Please enter a valid number. You cannot vote for yourself or a cat that has been eliminated.');
+            return;
+          }
+      //The voting results need to be saved. Although the index in the array starts from 0, for example [0,1,2,3],
+      //  the cat number starts from 1. So, for example, cat number 3 has an index of 2 in the array, so num-1
+       votes[voter] = num - 1;
+
+  //log(`Cat No.${voter + 1} choose cat No.${num}`);  //In order to make the cats only know the voting results but not who voted for whom, 
+                   //and increase the sense of unease, this line of code has been temporarily removed, but it may be restored in the future.
+       
+         voteIndex++;// Let next cat votes
+
+      if (voteIndex >= alivePlayers.length) {
+        //If all surviving cats have voted, call tallyVotes() Count the voting results.
+        //  Otherwise, update the status bar and let the next cat vote.
+         tallyVotes();
+       } else {
+        statusDiv.textContent = `Cat No.${alivePlayers[voteIndex] + 1} start voting...`;
+       }
+    }
+
+
+    //This section is intended to tallyVotes the results of cats' votes
+    function tallyVotes() {
+             const tally = new Array(playersCount).fill(0);
+             //v is the index of the target cat for each vote
+             votes.forEach(v => {if (v !== null) {tally[v] += 1;}});
+
+        let maxVotes = 0;
+        let candidates = [];
+      //Find the cat with the highest votes
+       for (let player = 0; player < tally.length; player++)
+        {
+         const count = tally[player];
+         if (count > maxVotes) {
+                  maxVotes = count;
+                  candidates = [player];
+            } else if (count === maxVotes && maxVotes > 0) {
+               candidates.push(player);
+             }
+        }
+
+      //If there is a tie, that is, each cat gets one vote.
+      if (candidates.length > 1) {
+
+        tieCount++;
+        log(`Every cat has been voted (${tieCount} time${tieCount > 1 ? 's' : ''}). No cat is out, all cats enter the next round.`);
+        
+        if(tieCount >= 2) {
+          log('Two consecutive ties! Reval who voted for whom: ');
+          votes.forEach((v, i) => {
+            if (v !== null)log(`Cat No.${i + 1} voted for Cat No.${v+1}`);
+          });
+          tieCount = 0;
+        }
+        
+        
+        roundNumber++;
+        isForward = !isForward;
+        roundStartIndex = alive[currentSpeakerIndex] ? currentSpeakerIndex : getNextAlivePlayer(currentSpeakerIndex);
+        speakOrder = getSpeakOrder(roundStartIndex);
+        log(`The order of Round ${roundNumber}：${speakOrder.map(i => i + 1).join(' → ')}`);
+        statusDiv.textContent = `The Round ${roundNumber} beginning，from Cat No.${speakOrder[0] + 1}`;
+        speakBtn.classList.remove('hidden');
+        nextVoteBtn.classList.add('hidden');
+        return;
+       }
+
+     const votedOut = candidates[0]; // The cat which only get the most of votes
+
+    alive[votedOut] = false;
+    const isSpy = keywords[votedOut] === 'chicken';
+    log(`Cat No.${votedOut + 1} be putted into the truth of cage...`);
+
+    if (isSpy) {
+        log(`This cat is the spy cat, the good cat win!`);
+        statusDiv.textContent = 'Game over: good cat win!';
+        endGame();
+    } else {
+        log(`This cat is not spy, this cat is innocent...`);
+        const aliveNow = getAlivePlayers();
+    if (aliveNow.length === 2) {
+        const badCat = aliveNow.find(i => keywords[i] === 'Duck');
+    if (badCat !== undefined) {
+        log(`Spy cat NO.${badCat + 1} survival, Spy cat win!`);
+        statusDiv.textContent = 'Game over, Spy cat win!';
+      } else {
+        log(`Spy cat out, good cat win!`);
+        statusDiv.textContent = 'Game over: good cat win!';
+      }
+
+      endGame();
+      return;
+    }
+
+    roundNumber++;
+    isForward = !isForward;
+    roundStartIndex = alive[currentSpeakerIndex] ? currentSpeakerIndex : getNextAlivePlayer(currentSpeakerIndex);
+    speakOrder = getSpeakOrder(roundStartIndex);
+    log(`The Order of round${roundNumber}:${speakOrder.map(i => i + 1).join(' → ')}`);
+    statusDiv.textContent = `The Round${roundNumber} start`;
+    speakBtn.classList.remove('hidden');
+    nextVoteBtn.classList.add('hidden');
+  }
+}
+
+     function endGame() {
+            speakBtn.classList.add('hidden');
+            voteBtn.classList.add('hidden');
+            nextVoteBtn.classList.add('hidden');
+            restartBtn.classList.remove('hidden');
+    }
+
+    startBtn.onclick = resetGame;
+    speakBtn.onclick = nextSpeaker;
+    voteBtn.onclick = startVoting;
+    nextVoteBtn.onclick = playerVote;
+    restartBtn.onclick = () => location.reload(); //Call the browser's location.reload() method to refresh the current web page, 
+                                                  // So when the player clicks the "Restart" button, the page will be reloaded
+
+   //Increse the bubble for chat
+   function addChatBubble(catNumber, text, isRight = false) {
+   const chatContainer = document.getElementById('chatContainer');
+
+   const bubble = document.createElement('div');
+   bubble.className = 'bubble ' + (isRight ? 'right' : 'left');
+
+   const speaker = document.createElement('div');
+   speaker.className = 'speaker';
+   speaker.textContent = `Cat No.${catNumber}`;
+
+   const content = document.createElement('div');
+   content.textContent = text;
+
+   bubble.appendChild(speaker);
+   bubble.appendChild(content);
+
+   chatContainer.appendChild(bubble);
+   chatContainer.scrollTop = chatContainer.scrollHeight;
+ }
+
+ // Let player type...
+  function promptCatToSpeak(catIndex) {
+  document.getElementById('catLabel').textContent = catIndex + 1;
+
+  //Add the keyword for player
+   const keyword = keywords[catIndex];
+   document.getElementById('keywordHint').textContent = ` (Your word is: "${keyword}")`;
+
+  document.getElementById('inputContainer').classList.remove('hidden');
+
+  const input = document.getElementById('chatInput');
+  input.value = '';
+  input.focus();
+  input.dataset.catIndex = catIndex;
+}
+
+ //More things about speaking...
+  document.getElementById('sendBtn').onclick = function () {
+  const input = document.getElementById('chatInput');
+  const catIndex = Number(input.dataset.catIndex); //In order to identify which cat is speaking, it reads the number (index) of the currently speaking cat and converts it into a number
+  const message = input.value.trim(); //Use trim() to remove leading and trailing whitespace characters
+
+  if (!message) {
+    alert('This can not empty!');
+    return;
+  }
+
+  addChatBubble(catIndex + 1, message); // Again, as mentioned before, cat numbers start at 1 for the player, while array indexes start at 0, so +1 is needed here.
+  document.getElementById('inputContainer').classList.add('hidden');
+
+  // One player finished. Next one speaking...
+    nextSpeaker();  
+  };
+
+    </script>
+</body>
+</html>
