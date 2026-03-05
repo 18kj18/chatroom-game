@@ -14,7 +14,6 @@
 
 /* eslint-disable no-process-exit */
 
-const {redisClient} = require('./redis');
 const pkg = require('./package');
 const server = require('./app');
 
@@ -28,7 +27,6 @@ server.listen(PORT, () =>
 // Clean up resources on shutdown
 process.on('SIGTERM', () => {
   console.log(`${pkg.name}: received SIGTERM`);
-  redisClient.quit();
   process.exit(0);
 });
 

@@ -1,7 +1,4 @@
 const express = require('express');
-//const {redisClient, getRoomFromCache, addMessageToCache} = require('./redis'); //idk if this is important
-const {addUser, getUser, deleteUser} = require('./users'); //remove probably. stores user data in maps. replace with real database
-//maybe remove test directory too, idk what it does
 
 const app = express();
 app.use(express.static(__dirname + '/public'));
@@ -11,31 +8,11 @@ app.get('/', async (req, res) => {
   res.render('index');
 });
 
-/*
+
 // [START cloudrun_websockets_server]
 // Initialize Socket.io
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-
-// [START cloudrun_websockets_redis_adapter]
-const {createAdapter} = require('@socket.io/redis-adapter');
-
-// Replace in-memory adapter with Redis
-const subClient = redisClient.duplicate();
-io.adapter(createAdapter(redisClient, subClient));
-// [END cloudrun_websockets_redis_adapter]
-*/
-
-// Add error handlers
-redisClient.on('error', err => {
-  console.error(err.message);
-  console.log(err);
-});
-
-subClient.on('error', err => {
-  console.error(err.message);
-  console.log("Error2");
-});
 
 //Set stores the socket id of every currently connected user
 //Info is sent to client when they connect to sync user data
