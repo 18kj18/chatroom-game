@@ -2,6 +2,7 @@
   "name": "websockets",
   "description": "Node.js websockets sample for Cloud Run",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "license": "Apache Version 2.0",
   "author": "Google LLC",
@@ -16,6 +17,8 @@
   },
   "dependencies": {
     "express": "^4.22.1",
+    "firebase": "^12.10.0",
+    "firebase-admin": "^13.7.0",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {

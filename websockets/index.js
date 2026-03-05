@@ -14,8 +14,8 @@
 
 /* eslint-disable no-process-exit */
 
-const pkg = require('./package');
-const server = require('./app');
+import { server } from "./app.js";
+import pkg from "./package.json" with {type: 'json'};
 
 const PORT = parseInt(process.env.PORT) || 8080;
 
@@ -30,4 +30,5 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-module.exports = server;
+//module.exports = server;
+export { server };
