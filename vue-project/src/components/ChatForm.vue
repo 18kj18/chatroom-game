@@ -11,13 +11,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyA2SPWXnCnvMlOzKLkNaJnQdfbmKUqmt9A",
-    authDomain: "catroom-2a37a.firebaseapp.com",
-    databaseURL: "https://catroom-2a37a-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "catroom-2a37a",
-    storageBucket: "catroom-2a37a.firebasestorage.app",
-    messagingSenderId: "882770246929",
-    appId: "1:882770246929:web:10703be03a24f0c26c20b0"
+    //Insert config here (from test app)
 };
 
 const app = initializeApp(firebaseConfig);
