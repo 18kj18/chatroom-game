@@ -1,46 +1,49 @@
-import './assets/main.css'
-
 import { createApp } from 'vue'
 import App from './App.vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import routes from './router/routes'
+import './registerServiceWorker'
+import router from './router'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import { initializeApp } from 'firebase/app'
+import { getAuth, connectAuthEmulator, onAuthStateChanged } from 'firebase/auth'
 
 const firebaseConfig = {
-  //Insert API key -----------------------------------------------------------
-}
+ //API key here! ---------------------------------------------------------------------------------
+};
 
-import { initializeApp } from "firebase/app";
+import { reactive } from 'vue'
 
-initializeApp(firebaseConfig);
+initializeApp(firebaseConfig)
 
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+const currentUser = reactive({ user: {
+  uid: null,
+  email: null,
+  displayName: null
+} })
 
-const currentUser = { user: "test123", uid: "123123132" };
-
-const auth = getAuth();
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        currentUser.user = {
-            uid: user.uid
-        }
-    } else {
-            //currentUser.user = null
-    }
-})
-
-let router = createRouter({
-    history: createWebHistory(),
-    routes: routes
-});
-
-const app = createApp(App);
-app.use(router);
-
-console.log(currentUser);
+const app = createApp(App)
+app.use(router)
+app.use(ElementPlus)
 
 app.provide( 'apiKey', firebaseConfig);
-app.provide( 'uid', currentUser.uid);
 
+let isAppMounted = false;
+const auth = getAuth()
+onAuthStateChanged(auth, (user) => {
 
-
-app.mount('#app');
+  if (user) {
+    currentUser.user = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName
+    }
+  } else {
+    currentUser.user = null
+  }
+  app.provide('user', currentUser.user)
+  if (!isAppMounted) {
+    app.mount('#app')
+    isAppMounted = true
+  }
+})

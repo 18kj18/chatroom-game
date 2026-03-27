@@ -1,0 +1,8 @@
+{
+  "rules": {
+    ".read": true,
+    "admin": {
+      ".write": "auth.token.email === 'admin@example.com'"
+    }
+  }
+}

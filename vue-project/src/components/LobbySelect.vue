@@ -19,8 +19,6 @@ async function handleSubmit() {
     //TODO This doesnt actually set the lobby. ChatForm isnt reading the new value
     if (!lobbyInput.value) return;
 
-    console.log("New lobby code (not yet set): ",lobbyInput.value);
-
     lobby = lobbyInput.value;
     emit('lobby-code', lobby); //Send to parent
     lobbyInput.value = '';
