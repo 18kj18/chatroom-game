@@ -8,9 +8,9 @@ import 'element-plus/dist/index.css'
 import { initializeApp } from 'firebase/app'
 import { getAuth, connectAuthEmulator, onAuthStateChanged } from 'firebase/auth'
 
-const firebaseConfig = {
-    //api key here.
-};
+ const firebaseConfig = {
+  //insert key
+}
 
 import { reactive } from 'vue'
 

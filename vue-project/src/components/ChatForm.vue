@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { getAuth } from 'firebase/auth'
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDatabase, ref as fbRef, get, child } from "firebase/database";
@@ -26,21 +26,25 @@ const message = ref('')
 
 const props = defineProps(['user', 'code'])
 
-var displayName
+var displayName = ref('')
 
-if (props.user.displayName == null) {
-    const dbref = fbRef(getDatabase());
-    get(child(dbref, `displayNames/${getAuth().currentUser.uid}`)).then((snapshot) => {
-        console.log("snapshot exists?: ",snapshot.exists()," | snapshot value: ",snapshot.val()," | uid: ",getAuth().currentUser.uid)
-        if (snapshot.exists()) {
-            displayName = snapshot.val().user
-        }
-    }).catch((error) => {
-        console.error(error);
-    })
-} else {
-    displayName = props.user.displayName
-}
+onMounted(async () => {
+    if (props.user.displayName == null) {
+        const dbref = fbRef(getDatabase());
+        get(child(dbref, `displayNames/${getAuth().currentUser.uid}`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                displayName = snapshot.val().user
+            }
+        }).catch((error) => {
+            console.error(error);
+        })
+    } else {
+        displayName = props.user.displayName
+    }
+})
+
+
+console.log(props.user)
 
 async function handleSubmit() {
     console.log("Message: ",message.value,"| DisplayName: ",displayName)

@@ -5,7 +5,6 @@ import lobbySelect from '@/components/LobbySelect.vue'
 import { getAuth,onAuthStateChanged } from 'firebase/auth'
 import { useRouter } from 'vue-router'
 import { onBeforeUnmount } from 'vue'
-import Phaser from 'phaser';
 import { ref, toRaw } from 'vue';
 import PhaserGame from './PhaserGame.vue'; 
 
@@ -60,7 +59,7 @@ const changeScene = () => {
 </script>
 
 <template>
-    <PhaserGame ref="phaserRef" @current-active-scene="currentScene" />
+    <PhaserGame ref="phaserRef" @current-active-scene="currentScene" :code="getLobby"/>
     
     <div style="display: flex; flex-direction: column;">
         <chatBox :code="getLobby" />

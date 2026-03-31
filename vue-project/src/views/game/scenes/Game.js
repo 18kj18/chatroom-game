@@ -4,111 +4,123 @@ import { Scene } from 'phaser';
 export class Game extends Scene
 {
     
-    
-    constructor ()
-    {
+    constructor () {
         super('Game');
+
+        this.playerLabel;
+
+        this.user;
+
+        EventBus.on('newPositions', (data) => {
+            this.position.clear()
+            for (let i = 0; i < data.length; i++) {
+                this.position.set(data[i][0], data[i][1]);
+            }
+        });
+
         this.isChat = false;
-        this.keyA
-        this.keyS
-        this.keyD
-        this.keyW
+        this.keyW;
+        this.keyA;
+        this.keyS;
+        this.keyD;
         this.keyToggle;
-        this.keyENTER
-        this.keyESC
-        this.player;
-        this.cursors;
-        this.sturing;
+        this.playerSprite;
+        this.framesElapsed = 0;
+
+        this.playerList = new Map();
+        this.position = new Map();
     }
-    create ()
-    {
+    create () {
+
+        this.playerLabel = this.add.text(200, 400, this.user, {
+            fontFamily: 'Arial Black', fontSize: 18, color: '#ffffff',
+            stroke: '#000000', strokeThickness: 8,
+            align: 'center'
+        }).setDepth(100).setOrigin(0.5);
+
+        EventBus.on('user', (user) => {
+            this.user = user;
+            console.log("emitted username is recieved: ",user);
+            this.playerLabel.setText(user.displayName);
+        });
+
+        // const keys = this.input.keyboard.addKey("W");
+        this.keyW = this.input.keyboard.addKey("W");
+        this.keyA = this.input.keyboard.addKey("A");
+        this.keyS = this.input.keyboard.addKey("S");
+        this.keyD = this.input.keyboard.addKey("D");
+        this.keyToggle = this.input.keyboard.addKey("FORWARD_SLASH");
         
-        this.keyENTER = this.input.keyboard.addKey('ENTER',false)
-        this.keyESC = this.input.keyboard.addKey('ESC',false)
-        this.keyToggle = this.input.keyboard.addKey('FORWARD_SLASH',false)
-        this.keyA = this.input.keyboard.addKey('A',false)
-        this.keyS = this.input.keyboard.addKey('S', false)
-        this.keyD = this.input.keyboard.addKey('D', false)
-        this.keyW = this.input.keyboard.addKey('W', false)
+
         this.cameras.main.setBackgroundColor(0x00ff00);
 
         this.add.image(512, 384, 'green');
         
-        /*this.add.text(512, 200, 'Green Map', {
+        this.add.text(512, 200, 'Green Map', {
             fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'
         }).setDepth(100).setOrigin(0.5);
-        */
-        if (1 == 1) {
-            this.sturing = 'catbeni';
-        }
-        this.player = this.physics.add.sprite(200, 350, this.sturing);
-        this.player.setCollideWorldBounds(true);
+        //player = this.physics.add.sprite(200, 350, 'catbeni');
+        this.playerSprite = this.add.image(200, 350, 'catbeni');
+        //player.setCollideWorldBounds(true);
+        var cursors;
         
-        
-        this.cursors = this.input.keyboard.createCursorKeys();
-        const emoButton = this.add.text(100, 100, 'Become Emo', { fill: '#0f0' })
-            .setInteractive()
-            .on('pointerdown', () => this.changeCharacter('emo'));
-       
-        const fluffyButton = this.add.text(100, 200, 'Become fluffy', { fill: '#0f0' })
-            .setInteractive()
-            .on('pointerdown', () => this.changeCharacter('fluffy'));
-        
-        const uuhButton = this.add.text(100, 300, 'Become uuh', { fill: '#0f0' })
-            .setInteractive()
-            .on('pointerdown', () => this.changeCharacter('uuh'));
-
-        const OrangeButton = this.add.text(100, 400, 'Lose Brain', { fill: '#0f0' })
-            .setInteractive()
-            .on('pointerdown', () => this.changeCharacter('orange'));
-
-        const l3Button = this.add.text(400, 300, 'Become :3', { fill: '#0f0' })
-            .setInteractive()
-            .on('pointerdown', () => this.changeCharacter('l3'));
-
-        const ChineseButton = this.add.text(400, 400, 'Become CC!', { fill: '#0f0' })
-            .setInteractive()
-            .on('pointerdown', () => this.changeCharacter('CC'));
-
-        const CatbeniButton = this.add.text(400, 500, 'Become Catbeni!', { fill: '#0f0' })
-            .setInteractive()
-            .on('pointerdown', () => this.changeCharacter('catbeni'));
+        cursors = this.input.keyboard.createCursorKeys();
+    
         EventBus.emit('current-scene-ready', this);
+
+        EventBus.emit('listener-ready', true);
     }
-    update ()
-    {   
-        if (this.keyESC.isDown || this.keyENTER.isDown) {
-            this.isChat = false;
+    update () {
+        if (this.framesElapsed % 60 == 0) {
+            EventBus.emit("position", [this.playerSprite.x, this.playerSprite.y]);
+            for (const [key, value] of this.position) {
+                if (key != this.user.uid) {
+                    //create an image for each player except yourself
+                    if (this.playerList.get(key) == null) {
+                        console.log(key," has no image in the map yet, creating one")
+                        this.playerList.set(key, this.add.image(200, 200, 'catbeni'))
+                    }
+                    //Now they have an image, so we move them to the correct position
+                    this.playerList.get(key).x = this.position.get(key).x
+                    this.playerList.get(key).y = this.position.get(key).y
+                    
+                }
+            }
+
+            //console.log(this.position)
+        }
+        if (this.keyToggle.isDown) {
+            this.isChat = !this.isChat;
+            console.log("buh")
+           
         }
         if (this.isChat) {
             return;
         }
-        if (this.keyToggle.isDown) {
-            this.isChat = true;
-            
-        }
-        
-        if (this.keyA.isDown) {
-            this.player.x -= 5;
-        }
-        if (this.keyS.isDown) {
-            this.player.y += 5;
+        if (this.keyW.isDown) {
+            // W key
+            this.playerSprite.y -=5;
         }
         if (this.keyD.isDown) {
-            this.player.x += 5;
+            // D key 
+            this.playerSprite.x += 5;
         }
-        if (this.keyW.isDown) {
-            this.player.y -= 5;
+        if (this.keyS.isDown) {
+            // S key
+            this.playerSprite.y +=5;
         }
-       
+        if (this.keyA.isDown) {
+            // A key
+            this.playerSprite.x -=5;
+        } 
+
+        this.playerLabel.x = this.playerSprite.x;
+        this.playerLabel.y = this.playerSprite.y-60;
         
-               
+        this.framesElapsed++;
     }
-    changeCharacter(char) {
-        this.sturing = char
-        this.player.destroy()
-        this.player = this.physics.add.sprite(this.player.x, this.player.y, this.sturing);
-    }
+    
+
 }
