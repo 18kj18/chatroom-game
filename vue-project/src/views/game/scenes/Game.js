@@ -28,9 +28,10 @@ export class Game extends Scene
     create () {
 
         EventBus.on('user', (user) => {
-            this.user = user;
-            this.playerLabel.setText(user.displayName);
+            this.user = user[0];
+            this.playerLabel.setText(user[1]);
             console.log("set text")
+            console.log(user[1])
         });
 
         EventBus.on('newpos', (data) => {

@@ -12,11 +12,12 @@ import { initializeApp } from "firebase/app";
 const scene = ref();
 const game = ref();
 
-const emit = defineEmits(['current-active-scene', 'username', 'newpos']);
+const emit = defineEmits(['current-active-scene', 'username', 'newpos', 'user']);
 
 import { inject } from 'vue';
 
 const user = inject('user');
+var displayName;
 
 const props = defineProps(["code"])
 
@@ -62,7 +63,9 @@ onMounted(() => {
             get(child(dbref, `${user.uid}`)).then((snapshot) => {
                 if (snapshot.exists()) {
                     //console.log("username from db is emitted")
-                    user.displayName = snapshot.val().user
+                    displayName = snapshot.val().user
+                    console.log(snapshot.val().user," from db")
+                    EventBus.emit('user', [user, snapshot.val().user])
                 }
             }).catch((error) => {
                 console.error(error);
@@ -70,10 +73,13 @@ onMounted(() => {
         } else {
             //console.log("username from google is emitted: ", user.displayName)
             //EventBus.emit('user', user);
+            displayName = user.displayName
+            console.log(user.displayName, " from google")
+            EventBus.emit('user', [user, user.displayName])
         }
-        EventBus.emit('user', user)
+        
     })
-    console.log(user.displayName)
+    console.log(displayName)
 
     game.value = StartGame('game-container');        
 

@@ -54,7 +54,7 @@ const register = () => {
         console.error("Error setting display name:", err);
       }
 
-      router.push('/feed') // redirect to the feed
+      //router.push('/feed') // redirect to the feed
     })
     .catch(error => {
       console.log(error.code)
