@@ -5,9 +5,11 @@ import lobbySelect from '@/components/LobbySelect.vue'
 import { getAuth,onAuthStateChanged } from 'firebase/auth'
 import { useRouter } from 'vue-router'
 import { onBeforeUnmount } from 'vue'
+import Phaser from 'phaser';
+import { ref, toRaw } from 'vue';
+import PhaserGame from './PhaserGame.vue'; 
 
 import { inject } from 'vue';
-    
 let lobby = "home";
 
 const user = inject('user');
@@ -22,6 +24,9 @@ const getLobby = () => {
     };
 };
 
+  
+//  References to the PhaserGame component (game and scene are exposed)
+const phaserRef = ref();
 const router = useRouter()
 const authListener = onAuthStateChanged(getAuth(),function(user) {
     if (!user) { // not logged in
@@ -34,20 +39,37 @@ onBeforeUnmount(() => {
     // clear up listener
     authListener()
 })
+
+
+const changeScene = () => {
+
+    const scene = toRaw(phaserRef.value.scene);
+
+    if (scene)
+    {
+         
+        scene.changeScene();
+    }
+
+}
+
+
+
+
+
 </script>
 
 <template>
-    <div id="app">
-        <div id="game-container" style="width: 1024px; height: 768px; background-color: white;">
-            <h1 style="color: black;">This is where the game would go</h1>
-        </div>
-    </div>
+    <PhaserGame ref="phaserRef" @current-active-scene="currentScene" />
+    
     <div style="display: flex; flex-direction: column;">
         <chatBox :code="getLobby" />
         <chatForm :code="getLobby" :user="user" />
         <lobbySelect @lobby-code="setLobby" />
     </div>
+
 </template>
+
 
 <style scoped>
 /* ===== 全局重置 ===== */

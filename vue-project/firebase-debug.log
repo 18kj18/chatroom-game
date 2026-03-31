@@ -1,0 +1,28 @@
+[debug] [2026-03-29T11:27:20.174Z] ----------------------------------------------------------------------
+[debug] [2026-03-29T11:27:20.180Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js use --add
+[debug] [2026-03-29T11:27:20.180Z] CLI Version:   15.12.0
+[debug] [2026-03-29T11:27:20.180Z] Platform:      win32
+[debug] [2026-03-29T11:27:20.181Z] Node Version:  v24.14.1
+[debug] [2026-03-29T11:27:20.181Z] Time:          Sun Mar 29 2026 12:27:20 GMT+0100 (Irish Standard Time)
+[debug] [2026-03-29T11:27:20.181Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-29T11:27:20.619Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-29T11:27:20.620Z] > authorizing via signed-in user (danielmiezal@gmail.com)
+[debug] [2026-03-29T11:27:20.622Z] Checked if tokens are valid: true, expires at: 1774786583085
+[debug] [2026-03-29T11:27:20.623Z] Checked if tokens are valid: true, expires at: 1774786583085
+[debug] [2026-03-29T11:27:20.625Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-03-29T11:27:21.383Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2026-03-29T11:27:21.383Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2026-03-29T11:27:21.528Z] ValidationError: [select prompt] No selectable choices. All choices are disabled.
+    at C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\select\dist\commonjs\index.js:67:19
+    at C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\use-memo.js:11:27
+    at withPointer (C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\hook-engine.js:79:25)
+    at useMemo (C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\use-memo.js:6:45)
+    at C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\select\dist\commonjs\index.js:63:39
+    at C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\create-prompt.js:120:38
+    at store.handleChange (C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\hook-engine.js:31:17)
+    at cycle (C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\hook-engine.js:33:19)
+    at C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\create-prompt.js:118:13
+    at C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\hook-engine.js:35:16
+[error] 
+[error] Error: An unexpected error has occurred.

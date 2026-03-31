@@ -1,3 +1,6 @@
+import Phaser from 'phaser';
+import { ref, toRaw } from 'vue';
+
 <template>
   <nav>
    <router-link to = "/">home</router-link>|

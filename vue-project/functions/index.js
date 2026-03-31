@@ -76,20 +76,3 @@ export const sendMessage = onCall(async (request) => {
 
   return { success: true };
 });
-
-export const setDisplayName = onCall(async (request) => {
-  logger.log("Incoming data:", request.data);
-  const { user, uid } = request.data;
-
-  if (!user || !uid) {
-    throw new HttpsError("invalid-argument", "Missing user/uid");
-  }
-
-  const db = admin.database();
-
-  await db.ref(`displayNames/${uid}`).set({
-    user
-  });
-
-  return { success: true };
-});

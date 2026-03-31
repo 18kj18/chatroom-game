@@ -1,6 +1,6 @@
 <template>
     <h1> Login to Your Account </h1>
-    <p>Email/Passpord</p>
+    <p>Email/Password</p>
     <p> <input type='text' placeholder="Email" v-model='email'/> </p>
     <p> <input type='password' placeholder="Password" v-model='password'/> </p>
     <p v-if="errMsg"> {{ errMsg }} </p>
