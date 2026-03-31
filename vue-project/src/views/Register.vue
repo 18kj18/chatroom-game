@@ -1,3 +1,9 @@
+/**
+ * Portions of this code are based on examples from the official Firebase documentation:
+ * https://firebase.google.com/docs
+ * Provider: Google Firebase
+ */
+
 <template>
     <h1> Create an Account </h1>
     <p> <input type='text' placeholder="Display Name" v-model='displayName'/> </p>
