@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { ref, toRaw } from 'vue';
 
 <template>
-  <nav>
+  <nav class="fancy-nav">
    <router-link to = "/">home</router-link>|
      <span> 
         <router-link to="/Feed">Feed</router-link> |
@@ -12,10 +12,8 @@ import { ref, toRaw } from 'vue';
       </span>
       <span v-else>
         <router-link to="/register"> Register </router-link> |
-        <router-link to="/login"> Login </router-link> |
+        <router-link to="/login"> Login </router-link> 
       </span>
-   <router-link to = "/about">about</router-link>|
-   <router-link to = "/More">More</router-link>
    </nav>
    <router-view/>
 </template>
@@ -58,6 +56,7 @@ const handleSignOut = () => {
 
 nav {
   padding: 50px;
+  font-size: 20px;  
 }
 
 nav a {
@@ -66,6 +65,12 @@ nav a {
 }
 
 nav a.router-link-exact-active {
+  color: #42b983;
+}
+
+
+</style>
+
   color: #42b983;
 }
 </style>
