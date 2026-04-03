@@ -9,7 +9,7 @@ import { initializeApp } from 'firebase/app'
 import { getAuth, connectAuthEmulator, onAuthStateChanged } from 'firebase/auth'
 
 const firebaseConfig = {
-  
+  //api key here
 };
 
 

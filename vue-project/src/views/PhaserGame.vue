@@ -30,7 +30,9 @@ const functions = getFunctions(app);
 const setPositionfn = httpsCallable(functions, "setPosition");
 
 onMounted(() => {
-    console.log(user)
+    //potential solution: add while user undefined loop here, so it waits for user to be defined before continuing (stupid, but might work)
+
+    console.log("User is defined now! :", user)
     window.addEventListener('beforeunload', (e) => {
         e.preventDefault();
         const result = setPositionfn({

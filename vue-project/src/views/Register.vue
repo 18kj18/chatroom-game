@@ -5,11 +5,13 @@
  */
 
 <template>
+  <div class="page-container">
     <h1> Create an Account </h1>
     <p> <input type='text' placeholder="Display Name" v-model='displayName'/> </p>
     <p> <input type='text' placeholder="Email" v-model='email'/> </p>
     <p> <input type='password' placeholder="Password" v-model='password'/> </p>
     <p> <button @click="register"> Submit </button> </p>
+    </div>
 </template>
 
 <script setup>
@@ -54,7 +56,7 @@ const register = () => {
         console.error("Error setting display name:", err);
       }
 
-      //router.push('/feed') // redirect to the feed
+      router.push('/') // redirect to HOME
     })
     .catch(error => {
       console.log(error.code)
@@ -63,3 +65,20 @@ const register = () => {
 }
 
 </script>
+
+<style scoped>
+.page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #629db1;
+}
+
+input, button {
+  padding: 8px;
+  margin: 5px;
+  font-size: 16px;
+}
+</style>
