@@ -1,7 +1,8 @@
 <template>
   <div class="home">
+    <h1>Welcome to the Catroom!</h1>
     <img src="../assets/maomao.png">
-    <FromOneToFour/>
+    <p>To start chatting, login or register!</p>
   </div>
 </template>
 

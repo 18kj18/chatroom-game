@@ -1,3 +1,14 @@
+<template>
+  <div class="feed-container">
+    <PhaserGame ref="phaserRef" @current-active-scene="currentScene"/>
+    
+    <div id="chat">
+        <chatBox />
+        <chatForm :user="user" />
+    </div>
+  </div>
+</template>
+
 <script setup>
 import chatForm from '@/components/ChatForm.vue'
 import chatBox from '@/components/ChatBox.vue'
@@ -25,7 +36,7 @@ const authListener = onAuthStateChanged(getAuth(),function(user) {
 
 onBeforeUnmount(() => {
     // clear up listener
-    authListener()
+    //authListener()
 })
 
 
@@ -46,92 +57,3 @@ const changeScene = () => {
 
 
 </script>
-
-<template>
-  <div style="display: flex; flex-direction: row; justify-content: center; align-items: stretch;">
-    <PhaserGame ref="phaserRef" @current-active-scene="currentScene"/>
-    
-    <div style="display: flex; flex-direction: column; max-height: 768px;">
-        <chatBox />
-        <chatForm :user="user" />
-    </div>
-  </div>
-</template>
-
-
-<style scoped>
-/* ===== 全局重置 ===== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* ===== 页面容器 ===== */
-.Feed {
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #000;
-}
-
-/* ===== 背景视频 ===== */
-.background-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* cover 填满屏幕 */
-}
-
-/* ===== 按钮容器 ===== */
-.button-container {
-  position: absolute;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 80px;
-  z-index: 10;
-}
-
-/* ===== 按钮窗口位置 ===== */
-.button-window.left {
-  position: absolute;
-  left: -490px;
-  top: -260px;
-}
-
-.button-window.right {
-  position: absolute;
-  right: -490px;
-  top: -260px;
-}
-
-/* ===== 按钮样式 ===== */
-.btn {
-  width: 230px;
-  height: 230px;
-  background-color: rgba(91, 211, 163, 0.8);
-  border: none;
-  border-radius: 50%;
-  font-size: 28px;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn:hover {
-  background-color: rgb(213, 219, 217);
-}
-</style>

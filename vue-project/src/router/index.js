@@ -6,12 +6,24 @@ import { getAuth } from 'firebase/auth'
 const routes = [
   {
     path: '/',
-    name: 'home',
+    name: 'Catroom - Home',
     component: HomeView
   },
-        { path: '/Feed', component: () => import(/* webpackChunkName: "Feed" */ '../views/Feed.vue') },
-        { path: '/register', component: ()  => import(/* webpackChunkName: "Register" */ '../views/Register.vue') },
-        { path: '/login', component: () => import(/* webpackChunkName: "Login" */ '../views/Login.vue') },
+  {
+    path: '/Feed',
+    name: 'Catroom - Feed',
+    component: () => import(/* webpackChunkName: "Feed" */ '../views/Feed.vue')
+  },
+  {
+    path: '/register',
+    name: 'Catroom - Register',
+    component: ()  => import(/* webpackChunkName: "Register" */ '../views/Register.vue')
+  },
+  {
+    path: '/login',
+    name: 'Catroom - Login',
+    component: () => import(/* webpackChunkName: "Login" */ '../views/Login.vue')
+  },
 ]
 
 const router = createRouter({
@@ -21,8 +33,10 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   if (getAuth().currentUser == null && to.path == '/Feed') {
+    alert("Please Login or Register to access the feed.");
     return { path: '/' }
   }
+  document.title = to.name;
 })
 
 export default router

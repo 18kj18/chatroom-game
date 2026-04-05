@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import '@/assets/styles.css'
 import './registerServiceWorker'
 import router from './router'
 import ElementPlus from 'element-plus'
@@ -9,7 +10,7 @@ import { initializeApp } from 'firebase/app'
 import { getAuth, connectAuthEmulator, onAuthStateChanged } from 'firebase/auth'
 
 const firebaseConfig = {
-  //api key here
+  //api key
 };
 
 

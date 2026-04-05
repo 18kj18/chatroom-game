@@ -84,7 +84,7 @@ export class Game extends Scene
         EventBus.emit('listener-ready', true);
     }
     update () {
-        if (this.framesElapsed % 15 == 0) {
+        if (this.framesElapsed % 15 == 0 && this.user != null) {
             EventBus.emit("position", [this.playerSprite.x, this.playerSprite.y]);
             for (const [key, value] of this.position) {
                 if (key != this.user.uid) {
