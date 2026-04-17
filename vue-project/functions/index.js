@@ -61,18 +61,57 @@ admin.initializeApp();
 
 export const sendMessage = onCall(async (request) => {
   logger.log("Incoming data:", request.data);
-  const { user, lobby, text, time } = request.data;
+  const { user, text, time } = request.data;
 
-  if (!user || !lobby || !text || !time) {
+  if (!user || !text || !time) {
     throw new HttpsError("invalid-argument", "Missing user/text");
   }
 
   const db = admin.database();
 
-  await db.ref(`lobbies/${lobby}/messages/${user}`).set({
+  await db.ref(`messages/${user}`).set({
     text,
     time
   });
+
+  return { success: true };
+});
+
+export const setDisplayName = onCall(async (request) => {
+  logger.log("Incoming data:", request.data);
+  const { user, uid } = request.data;
+
+  if (!user || !uid) {
+    throw new HttpsError("invalid-argument", "Missing user/uid");
+  }
+
+  const db = admin.database();
+
+  await db.ref(`displayNames/${uid}`).set({
+    user
+  });
+
+  return { success: true };
+});
+
+export const setPosition = onCall(async (request) => {
+  logger.log("Incoming data:", request.data);
+  const { uid, x, y } = request.data;
+
+  if (!uid) {
+    throw new HttpsError("invalid-argument", "Missing uid");
+  }
+
+  const db = admin.database();
+
+  if (!x || !y) {
+    await db.ref(`positions/${uid}`).set(null);
+  } else {
+    await db.ref(`positions/${uid}`).set({
+      x,
+      y
+    });
+  }
 
   return { success: true };
 });
