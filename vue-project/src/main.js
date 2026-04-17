@@ -10,13 +10,7 @@ import { initializeApp } from 'firebase/app'
 import { getAuth, connectAuthEmulator, onAuthStateChanged } from 'firebase/auth'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyALDiuGjMKScNuvd5fXCYrrTm1MExJIdU8",
-  authDomain: "catroom-2a37a.firebaseapp.com",
-  databaseURL: "https://catroom-2a37a-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "catroom-2a37a",
-  storageBucket: "catroom-2a37a.firebasestorage.app",
-  messagingSenderId: "882770246929",
-  appId: "1:882770246929:web:c172f3f7b415904c6c20b0"
+  //Key Here
 };
 
 import { reactive } from 'vue'
